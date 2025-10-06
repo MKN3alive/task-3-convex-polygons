@@ -1,10 +1,11 @@
 from convex_polygons import ConvexPolygon
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+
 if __name__ == "__main__":
 
 
     poly1 = ConvexPolygon([(0,0), (4,0), (3,3),(2,4), (1,4), (0,3)])
-    poly2 = ConvexPolygon([(5,4), (6,4), (6,5)])
+    poly2 = ConvexPolygon([(2,3), (3,3), (3,4)])
 
     print("Полигон 1 вершины:", poly1.vertices)
     print("Полигон 2 вершины:", poly2.vertices)
@@ -20,7 +21,9 @@ if __name__ == "__main__":
     print(f"Точка {outside_point} внутри poly1?", poly1.contains_point(outside_point))
 
 
-    triangles = poly1.triangulate()
+    #triangles = poly1.triangulate()
+    triangles = poly1.triangulate_hard()
+    
     print(f"Poly1 разбит на {len(triangles)} треугольников:")
     for i, tri in enumerate(triangles, start=1):
         print(f"  Треугольник {i}: {tri.vertices}")
@@ -29,13 +32,10 @@ if __name__ == "__main__":
     else:
         print("Многоугольники не пересекаются")
 
-    # ===== ВИЗУАЛИЗАЦИЯ РАСКОММЕНТИРОВАТЬ import matplotlib.pyplot as plt=====
-    '''
     plt.figure(figsize=(8,8))
     plt.axis("equal")
     plt.grid(True, linestyle="--", alpha=0.6)
     plt.title("Выпуклые многоугольники, триангуляция и пересечение")
-
 
     xs1, ys1 = zip(*(poly1.vertices + [poly1.vertices[0]]))
     plt.plot(xs1, ys1, 'b-', linewidth=2, label="Poly1")
@@ -64,5 +64,7 @@ if __name__ == "__main__":
         plt.text(x + 0.05, y + 0.05, f"W{i}", fontsize=10, color='red')
 
     plt.legend()
+    
+    plt.savefig('file.jpg')
+    
     plt.show()
-'''

@@ -68,7 +68,6 @@ class ConvexPolygon:
             triangles.append(ConvexPolygon(tri_vertices))
         return triangles
 
-    """
     def triangulate_hard(self) -> List["ConvexPolygon"]: #Сложная триангуляция (Разные треугольники содержат разные вершины)
         triangles = []
         n = len(self.vertices)
@@ -98,7 +97,7 @@ class ConvexPolygon:
                 triangles.append(ConvexPolygon(tri_vertices))
 
         return triangles
-    """
+    
     def polygons_intersect(poly1: "ConvexPolygon", poly2: "ConvexPolygon") -> bool:
         def get_axes(vertices):
             axes = []
