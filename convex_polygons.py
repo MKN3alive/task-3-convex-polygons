@@ -97,25 +97,51 @@ class ConvexPolygon:
                 triangles.append(ConvexPolygon(tri_vertices))
 
         return triangles
-    
-    def polygons_intersect(poly1: "ConvexPolygon", poly2: "ConvexPolygon") -> bool:
-        def get_axes(vertices):
-            axes = []
-            n = len(vertices)
-            for i in range(n):
-                x1, y1 = vertices[i]
-                x2, y2 = vertices[(i + 1) % n]
-                dx, dy = x2 - x1, y2 - y1
-                axes.append((-dy, dx))
-            return axes
-        def project(vertices, axis):
-            ax, ay = axis
-            projections = [x * ax + y * ay for (x, y) in vertices]
-            return min(projections), max(projections)
-        for vertices in (poly1.vertices, poly2.vertices):
-            for axis in get_axes(vertices):
-                min1, max1 = project(poly1.vertices, axis)
-                min2, max2 = project(poly2.vertices, axis)
-                if max1 < min2 or max2 < min1:
-                    return False
-        return True
+
+    def polygons_intersect(poly1: "ConvexPolygon", poly2: "ConvexPolygon") -> "ConvexPolygon | None":
+        def inside(p, edge_start, edge_end):
+            (x1, y1), (x2, y2) = edge_start, edge_end
+            (px, py) = p
+            return (x2 - x1) * (py - y1) - (y2 - y1) * (px - x1) >= 0
+
+        def intersection(p1, p2, e1, e2):
+            x1, y1 = p1
+            x2, y2 = p2
+            x3, y3 = e1
+            x4, y4 = e2
+
+            denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+            if denom == 0:
+                return None
+            px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denom
+            py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denom
+            return (px, py)
+
+        output = poly1.vertices
+        for i in range(len(poly2.vertices)):
+            input_list = output
+            output = []
+            A = poly2.vertices[i]
+            B = poly2.vertices[(i + 1) % len(poly2.vertices)]
+
+            if not input_list:
+                break
+
+            S = input_list[-1]
+            for E in input_list:
+                if inside(E, A, B):
+                    if not inside(S, A, B):
+                        inter = intersection(S, E, A, B)
+                        if inter:
+                            output.append(inter)
+                    output.append(E)
+                elif inside(S, A, B):
+                    inter = intersection(S, E, A, B)
+                    if inter:
+                        output.append(inter)
+                S = E
+
+        if len(output) < 3:
+            return None
+
+        return ConvexPolygon(output)
